@@ -37,6 +37,7 @@ from tkinter import scrolledtext
 
 from tpp.data import db as dbconfig
 from tpp.infrastructure import database as db
+from tpp.infrastructure import launcher as launcher
 
 tpp_url = f"http://{dbconfig['tpp-db']['ip']}:{dbconfig['tpp-db']['port']}/"
 headers_file = {"Authorization": f"Bearer {dbconfig['tpp-db']['token']}"}
@@ -622,7 +623,7 @@ class GlobalInfoWindow(tk.Frame):
         
         # I've made showing the skymap optional because it may be slow to
         # load if there are a lot of pointings. I'm not sure why I have two
-        # for loops here, but will check that out at some point!
+        # if statements here, but will check that out at some point!
         # -- Graham (9/20/24)
         if show_skymap == True:
             self.save_skymap_button = tk.Button(self.button_frame, text="Save skymap", command=self.save_skymap_box)
@@ -683,11 +684,10 @@ class GlobalInfoWindow(tk.Frame):
                 num_bad_statuses += 1
             else:
                 num_good_statuses += 1
-                # make this do something!! Call the launcher:
-                #
-                # command = "/path/to/launcher.py -d self.IDs[i]"
-                # split_command = shlex.split(command)
-                # subprocess.Popen(split_command, start_new_session=True)
+
+                command = "{} -d {}".format(launcher.__file__, self.IDs[i])
+                split_command = shlex.split(command)
+                subprocess.Popen(split_command, start_new_session=True)
         self.launch_result_popup = tk.Toplevel()
         self.launch_result_window = PopupWindow(self.launch_result_popup,
             "{} jobs launched; {} jobs cannot be processed.".format(num_good_statuses, num_bad_statuses))
@@ -890,12 +890,10 @@ class LaunchPointingWindow(tk.Frame):
             self.launch_warning_window = PopupWindow(self.launch_warning_popup,
                 "Warning! Pointing status is {} and cannot be processed.".format(self.status))
         else:
-            # make this do something!! Call the launcher:
-            #
-            # command = "/path/to/launcher.py -d self.ID"
-            # split_command = shlex.split(command)
-            # subprocess.Popen(split_command, start_new_session=True)
-            #
+            command = "{} -d {}".format(launcher.__file__, self.ID)
+            split_command = shlex.split(command)
+            subprocess.Popen(split_command, start_new_session=True)
+
             self.launch_result_popup = tk.Toplevel()
             self.launch_result_window = PopupWindow(self.launch_result_popup,
                 "Job launched!")
